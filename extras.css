@@ -1,0 +1,3 @@
+.support-note{margin:8px 0 0;color:var(--muted);font-size:13px}
+.negative{color:var(--green);font-weight:800}
+#ranking-body tr[data-code]{cursor:pointer}

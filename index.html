@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="台灣 ETF 每日與每週漲幅排名，以及熱門 ETF 主要持股比例。">
+  <title>ETF 雷達｜台灣 ETF 排名</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="extras.css">
+</head>
+<body>
+  <main>
+    <nav><a class="brand" href="#">ETF<span>雷達</span></a><div class="nav-links"><a href="#ranking">績效排名</a><a href="#holdings">主要持股</a></div></nav>
+    <header>
+      <div><p class="eyebrow">TAIWAN EQUITY ETF ONLY</p><h1>只看台灣<br>股票 ETF。</h1><p class="lead">排除海外、債券、原物料、槓桿與反向商品，專注投資台灣股票市場的 ETF。</p></div>
+      <div class="market-card"><div class="live"><i></i> 最近交易日</div><strong>08.07</strong><span>2026 · 台北</span><div class="mini-stat"><span>篩選範圍</span><b>台灣股票型</b></div></div>
+    </header>
+
+    <section id="ranking" class="section-head"><div><p class="kicker">PERFORMANCE</p><h2>強勢排行榜</h2></div><div class="tabs" role="tablist"><button class="active" data-period="daily">每日前 10</button><button data-period="weekly">每週前 10</button></div></section>
+    <section class="ranking-panel">
+      <div class="panel-toolbar"><p id="period-note">台灣股票型 ETF · 依 2026/08/07 收盤漲幅排序</p><label>搜尋全部台灣 ETF <input id="search" type="search" placeholder="例如 0050、00919、00981A"></label></div>
+      <div class="table-wrap"><table><thead><tr><th>排名</th><th>ETF</th><th>收盤價</th><th id="return-label">單日報酬</th><th>成交量</th><th>成交金額</th></tr></thead><tbody id="ranking-body"></tbody></table></div>
+    </section>
+
+    <section id="holdings" class="holdings-section">
+      <div class="section-head"><div><p class="kicker">PORTFOLIO X-RAY</p><h2>台灣 ETF 主要持股</h2><p class="support-note">目前提供 10 檔常見 ETF；會持續擴充，不代表市場只有這些。</p></div><label class="select-wrap">選擇 ETF<select id="etf-select"></select></label></div>
+      <div class="holdings-grid"><article class="fund-card"><span id="fund-code"></span><h3 id="fund-name"></h3><p id="fund-theme"></p><div class="fund-total"><span>前十大持股合計</span><strong id="holding-total"></strong></div><small>資料日期：2026/08/07　比例可能因申贖與價格變動而改變</small></article><article class="bars" id="holding-bars"></article></div>
+    </section>
+    <section class="notice"><b>資料說明</b><p>行情快照來自臺灣證券交易所公開資訊；週報酬為最近五個交易日累積變動。持股資料為公開揭露資料整理。本網站僅供資訊參考，不構成投資建議。</p><button id="download">下載目前榜單 CSV</button></section>
+    <footer><span>ETF 雷達</span><span>資料快照 2026/08/07 · 開啟網頁即可瀏覽</span></footer>
+  </main>
+  <script src="data/etf-universe.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
