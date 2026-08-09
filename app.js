@@ -1,6 +1,9 @@
-const universe=(window.ETF_UNIVERSE||[]).map(row=>row.value||row);
-const daily=universe.slice(0,10);
-const weekly=[['00981A','主動統一台股增長',28.03,6.25,185656768,5249895096],['00982A','主動群益台灣強棒',16.84,5.73,34928810,472993754],['00980A','主動野村臺灣優選',15.91,5.28,22694125,336851420],['00985A','主動野村台灣50',14.78,4.94,19654031,249843619],['00919','群益台灣精選高息',29.74,4.48,32346951,960688961],['00918','大華優利高填息30',27.76,4.12,19483025,497741533],['00915','凱基優選高股息30',26.08,3.86,23249618,557982410],['00878','國泰永續高股息',26.65,3.61,81983725,1930457602],['0050','元大台灣50',102.85,3.37,69373793,7133048202],['006208','富邦台50',151.40,3.19,12458317,1641135720]];
+const data=window.ETF_DATA||{asOf:'',featured:[],rows:[]};
+const universe=data.rows||[];
+const nf=new Intl.NumberFormat('zh-TW');
+const money=n=>n>=1e8?`${(n/1e8).toFixed(2)} 億`:n>=1e4?`${(n/1e4).toFixed(1)} 萬`:nf.format(n);
+let period='daily';
+
 const funds={
 '0050':{name:'元大台灣50',theme:'追蹤臺灣 50 指數，以大型權值股為核心。',holdings:[['台積電',61.68],['台達電',4.18],['鴻海',3.96],['聯發科',3.41],['廣達',1.72],['富邦金',1.55],['國泰金',1.48],['日月光投控',1.37],['中信金',1.27],['聯電',1.09]]},
 '006208':{name:'富邦台50',theme:'追蹤臺灣 50 指數，聚焦台灣大型龍頭企業。',holdings:[['台積電',61.55],['台達電',4.20],['鴻海',3.94],['聯發科',3.39],['廣達',1.73],['富邦金',1.56],['國泰金',1.47],['日月光投控',1.36],['中信金',1.28],['聯電',1.10]]},
@@ -11,9 +14,45 @@ const funds={
 '00918':{name:'大華優利高填息30',theme:'聚焦股息品質與歷史填息表現的台灣股票。',holdings:[['中信金',8.03],['國泰金',6.84],['聯電',6.25],['長榮',5.78],['富邦金',5.31],['華碩',4.86],['聯發科',4.55],['日月光投控',4.14],['陽明',3.78],['瑞昱',3.42]]},
 '00919':{name:'群益台灣精選高息',theme:'以高股息為核心，搭配獲利能力與波動度條件。',holdings:[['中信金',8.72],['國泰金',7.16],['富邦金',6.54],['聯電',5.86],['長榮',5.31],['華碩',4.72],['聯發科',4.39],['日月光投控',4.11],['陽明',3.84],['瑞昱',3.57]]},
 '00929':{name:'復華台灣科技優息',theme:'聚焦台灣科技產業，兼顧股息收益。',holdings:[['聯電',6.82],['聯發科',6.31],['日月光投控',5.78],['華碩',5.24],['聯詠',4.86],['瑞昱',4.55],['光寶科',4.17],['仁寶',3.92],['緯創',3.68],['廣達',3.41]]},
-'00940':{name:'元大台灣價值高息',theme:'以價值與股息條件篩選台灣上市櫃股票。',holdings:[['長榮',7.14],['中信金',6.68],['聯電',6.11],['國泰金',5.76],['富邦金',5.34],['華碩',4.92],['聯發科',4.48],['日月光投控',4.06],['陽明',3.75],['瑞昱',3.39]]}}
-let period='daily';const nf=new Intl.NumberFormat('zh-TW');const money=n=>n>=1e8?`${(n/1e8).toFixed(2)} 億`:n>=1e4?`${(n/1e4).toFixed(1)} 萬`:nf.format(n);const sourceRows=()=>period==='daily'?daily:weekly;
-function renderRanking(){const q=document.querySelector('#search').value.trim().toLowerCase();const searching=Boolean(q);const list=searching?universe.filter(r=>(r[0]+r[1]).toLowerCase().includes(q)):sourceRows();document.querySelector('#period-note').textContent=searching?`完整台灣股票型 ETF 搜尋結果 · ${list.length} 檔`:(period==='daily'?'台灣股票型 ETF · 依 2026/08/07 收盤漲幅排序':'台灣股票型 ETF · 依最近五個交易日累積報酬排序');document.querySelector('#return-label').textContent=searching||period==='daily'?'單日報酬':'五日報酬';document.querySelector('#ranking-body').innerHTML=list.map((r,i)=>`<tr data-code="${r[0]}"><td class="rank">${searching?'—':String(i+1).padStart(2,'0')}</td><td class="etf-cell"><b>${r[0]}</b><span>${r[1]}</span></td><td>${r[2].toFixed(2)}</td><td class="${r[3]>=0?'positive':'negative'}">${r[3]>=0?'+':''}${r[3].toFixed(2)}%</td><td>${nf.format(r[4])}</td><td>${money(r[5])}</td></tr>`).join('')||'<tr><td colspan="6">找不到這個代號；主動式 ETF 請連同結尾 A 輸入，例如 00981A。</td></tr>';document.querySelectorAll('#ranking-body tr[data-code]').forEach(tr=>tr.addEventListener('click',()=>{if(funds[tr.dataset.code]){select.value=tr.dataset.code;renderHoldings();document.querySelector('#holdings').scrollIntoView({behavior:'smooth'})}}))}
-document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.period;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===b));renderRanking()}));document.querySelector('#search').addEventListener('input',renderRanking);
-const select=document.querySelector('#etf-select');select.innerHTML=Object.entries(funds).map(([code,f])=>`<option value="${code}">${code} ${f.name}</option>`).join('');function renderHoldings(){const code=select.value||'0050',f=funds[code],total=f.holdings.reduce((s,x)=>s+x[1],0);document.querySelector('#fund-code').textContent=code;document.querySelector('#fund-name').textContent=f.name;document.querySelector('#fund-theme').textContent=f.theme;document.querySelector('#holding-total').textContent=total.toFixed(1)+'%';document.querySelector('#holding-bars').innerHTML=f.holdings.map((h,i)=>`<div class="bar-row"><span class="no">${String(i+1).padStart(2,'0')}</span><div><div class="company"><b>${h[0]}</b></div><div class="track"><div class="fill" style="width:${Math.min(h[1]/65*100,100)}%"></div></div></div><strong>${h[1].toFixed(2)}%</strong></div>`).join('')}select.addEventListener('change',renderHoldings);
-document.querySelector('#download').addEventListener('click',()=>{const data=sourceRows(),head=['排名','代號','ETF 名稱','收盤價',period==='daily'?'單日報酬(%)':'五日報酬(%)','成交量','成交金額'];const csv='\ufeff'+[head,...data.map((r,i)=>[i+1,r[0],`"${r[1]}"`,...r.slice(2)])].map(r=>r.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`台灣股票ETF_${period==='daily'?'每日':'每週'}前10.csv`;a.click();URL.revokeObjectURL(a.href)});renderRanking();renderHoldings();
+'00940':{name:'元大台灣價值高息',theme:'以價值與股息條件篩選台灣上市櫃股票。',holdings:[['長榮',7.14],['中信金',6.68],['聯電',6.11],['國泰金',5.76],['富邦金',5.34],['華碩',4.92],['聯發科',4.48],['日月光投控',4.06],['陽明',3.75],['瑞昱',3.39]]}
+};
+
+function drawdownInfo(value){
+  if(value<=-10)return{label:'10% 保守區',className:'dd-deep'};
+  if(value<=-5)return{label:'5% 分批區',className:'dd-watch'};
+  return{label:'未達 5%',className:'dd-normal'};
+}
+function tableRows(rows,withRank=true){
+  if(!rows.length)return'<tr><td colspan="8">目前沒有符合條件的 ETF。</td></tr>';
+  return rows.map((r,i)=>{const ret=period==='daily'?r.dailyReturn:r.weeklyReturn;const dd=drawdownInfo(r.drawdown);return `<tr><td class="rank">${withRank?String(i+1).padStart(2,'0'):'—'}</td><td class="etf-cell"><b>${r.code}</b><span>${r.name}</span></td><td>${r.close.toFixed(2)}</td><td class="${ret>=0?'positive':'negative'}">${ret>=0?'+':''}${ret.toFixed(2)}%</td><td>${r.high52.toFixed(2)}</td><td class="drawdown ${dd.className}">${r.drawdown.toFixed(2)}%</td><td><span class="zone ${dd.className}">${dd.label}</span></td><td>${money(r.value)}</td></tr>`}).join('');
+}
+function rankingTable(type,title){
+  const key=period==='daily'?'dailyReturn':'weeklyReturn';
+  const rows=universe.filter(r=>r.type===type).sort((a,b)=>b[key]-a[key]).slice(0,30);
+  return `<article class="ranking-block"><div class="ranking-title"><span>${type==='active'?'ACTIVE':'INDEX'}</span><h3>${title}</h3><b>${rows.length} 檔</b></div><div class="table-wrap"><table><thead><tr><th>排名</th><th>ETF</th><th>收盤價</th><th>${period==='daily'?'單日':'五日'}報酬</th><th>52週最高收盤</th><th>高點回跌</th><th>參考區間</th><th>成交金額</th></tr></thead><tbody>${tableRows(rows)}</tbody></table></div></article>`;
+}
+function renderRanking(){
+  const q=document.querySelector('#search').value.trim().toLowerCase();
+  if(q){
+    const rows=universe.filter(r=>(r.code+r.name).toLowerCase().includes(q));
+    document.querySelector('#rankings').innerHTML=`<article class="ranking-block wide"><div class="ranking-title"><span>SEARCH</span><h3>搜尋結果</h3><b>${rows.length} 檔</b></div><div class="table-wrap"><table><thead><tr><th>排名</th><th>ETF</th><th>收盤價</th><th>${period==='daily'?'單日':'五日'}報酬</th><th>52週最高收盤</th><th>高點回跌</th><th>參考區間</th><th>成交金額</th></tr></thead><tbody>${tableRows(rows,false)}</tbody></table></div></article>`;
+  }else{
+    document.querySelector('#rankings').innerHTML=rankingTable('active','主動式 ETF 前 30')+rankingTable('passive','被動式 ETF 前 30');
+  }
+  document.querySelector('#period-note').textContent=`台灣掛牌 ETF · 依 ${data.asOf.replaceAll('-','/')} ${period==='daily'?'單日':'最近五個交易日'}報酬排序`;
+}
+function renderWatchlist(){
+  const rows=data.featured.map(code=>universe.find(r=>r.code===code)).filter(Boolean);
+  document.querySelector('#watchlist-body').innerHTML=rows.map(r=>{const dd=drawdownInfo(r.drawdown);return `<tr><td class="etf-cell"><b>${r.code}</b><span>${r.name}</span></td><td><span class="type-pill ${r.type}">${r.type==='active'?'主動式':'被動式'}</span></td><td>${r.close.toFixed(2)}</td><td>${r.high52.toFixed(2)}</td><td class="drawdown ${dd.className}">${r.drawdown.toFixed(2)}%</td><td><span class="zone ${dd.className}">${dd.label}</span></td></tr>`}).join('')||'<tr><td colspan="6">觀察清單資料載入中。</td></tr>';
+}
+
+document.querySelectorAll('.tabs button').forEach(button=>button.addEventListener('click',()=>{period=button.dataset.period;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('active',x===button));renderRanking()}));
+document.querySelector('#search').addEventListener('input',renderRanking);
+const select=document.querySelector('#etf-select');
+select.innerHTML=Object.entries(funds).map(([code,f])=>`<option value="${code}">${code} ${f.name}</option>`).join('');
+function renderHoldings(){const code=select.value||'0050',f=funds[code],total=f.holdings.reduce((sum,row)=>sum+row[1],0);document.querySelector('#fund-code').textContent=code;document.querySelector('#fund-name').textContent=f.name;document.querySelector('#fund-theme').textContent=f.theme;document.querySelector('#holding-total').textContent=total.toFixed(1)+'%';document.querySelector('#holding-bars').innerHTML=f.holdings.map((h,i)=>`<div class="bar-row"><span class="no">${String(i+1).padStart(2,'0')}</span><div><div class="company"><b>${h[0]}</b></div><div class="track"><div class="fill" style="width:${Math.min(h[1]/65*100,100)}%"></div></div></div><strong>${h[1].toFixed(2)}%</strong></div>`).join('')}
+select.addEventListener('change',renderHoldings);
+document.querySelector('#download').addEventListener('click',()=>{const key=period==='daily'?'dailyReturn':'weeklyReturn';const ranked=['active','passive'].flatMap(type=>universe.filter(r=>r.type===type).sort((a,b)=>b[key]-a[key]).slice(0,30));const head=['類型','排名','代號','ETF 名稱','收盤價',period==='daily'?'單日報酬(%)':'五日報酬(%)','52週最高收盤價','高點回跌(%)','成交量','成交金額'];const body=ranked.map((r,i)=>[r.type==='active'?'主動式':'被動式',i%30+1,r.code,`"${r.name}"`,r.close,r[key],r.high52,r.drawdown,r.volume,r.value]);const csv='\ufeff'+[head,...body].map(row=>row.join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`ETF_${period==='daily'?'每日':'每週'}主動被動前30_${data.asOf}.csv`;a.click();URL.revokeObjectURL(a.href)});
+
+if(data.asOf){const [year,month,day]=data.asOf.split('-');document.querySelector('#market-date').textContent=`${month}.${day}`;document.querySelector('#market-year').textContent=`${year} · 台北`;document.querySelector('#footer-date').textContent=`資料快照 ${year}/${month}/${day} · 每個交易日更新`;}
+renderRanking();renderWatchlist();renderHoldings();
