@@ -1,9 +1,15 @@
 name: 發布 ETF 網站
-
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**'
+      - 'index.html'
+      - 'app.js'
+      - 'styles.css'
+      - 'extras.css'
 
 permissions:
   contents: read
@@ -11,8 +17,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -25,7 +31,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
-      - name: 發布網站
-        id: deployment
+          path: '.'
+      - id: deployment
         uses: actions/deploy-pages@v4
